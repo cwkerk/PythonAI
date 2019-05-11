@@ -53,7 +53,6 @@ class Agent:
         P = self.environment.P
         s_t, = where(S == S_T)
         for episode in range(episode_size):
-            l = (1 - self._lambda_) * pow(self._lambda_, episode)
             s = choice(self.environment.NS)
             z = 0
             while s != s_t[0]:
@@ -63,7 +62,7 @@ class Agent:
                 π_prime = self._epsilon_greedy(s_prime)
                 a_prime = self._take_action(π_prime)
                 delta = self._gamma_ + self._get_value_approximator_gradient(s, a)
-                z = self._gamma_ * l * z + delta
+                z = self._gamma_ * self._lambda_ * z + delta
                 td_error = self.R[s, a, s_prime] + self._gamma_ * self.Q[s_prime, a_prime] - self.Q[s, a]
                 self.Q[s, a] = self.Q[s, a] + self._alpha_ * td_error
                 self.W = self.W + self._alpha_ * td_error * z
