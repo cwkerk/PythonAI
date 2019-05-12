@@ -53,6 +53,7 @@ class Agent:
         P = self.environment.P
         s_t, = where(S == S_T)
         for episode in range(episode_size):
+            print("{}th episode starts".format(episode))
             s = choice(self.environment.NS)
             z = 0
             while s != s_t[0]:
@@ -68,6 +69,7 @@ class Agent:
                 self.W = self.W + self._alpha_ * td_error * z
                 s = s_prime
                 print("{}th: {}".format(episode, td_error))
+            print("{}th episode ends".format(episode))
 
 
 if __name__ == "__main__":

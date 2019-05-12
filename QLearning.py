@@ -47,6 +47,7 @@ class Agent:
         P = self.environment.P
         s_t, = where(S == self.environment.S_T)
         for episode in range(episode_size):
+            print("{}th episode starts".format(episode))
             s = choice(range(NS))
             while s != s_t[0]:
                 π = self._epsilon_greedy(s)
@@ -56,6 +57,8 @@ class Agent:
                 # Q(s, a) ← Q(s, a) + α[􏰄R + γ max[Q(s′, a′)] − Q(s, a)􏰅]
                 self.Q[s, a] = self.Q[s, a] + self._alpha_ * td_error
                 s = s_prime
+                print("TD error: {}".format(td_error))
+            print("{}th episode ends".format(episode))
 
 
 if __name__ == "__main__":
