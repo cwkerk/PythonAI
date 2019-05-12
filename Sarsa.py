@@ -47,6 +47,7 @@ class Agent:
         P = self.environment.P
         s_t, = where(S == self.environment.S_T)
         for episode in range(episode_size):
+            print("{}th episode starts".format(episode))
             s = choice(range(NS))
             π = self._epsilon_greedy(s)
             a = self._take_action(π)
@@ -54,12 +55,13 @@ class Agent:
                 s_prime = argmax(P[s, a])
                 π_prime = self._epsilon_greedy(s_prime)
                 a_prime = self._take_action(π_prime)
-                error = self.R[s, a, s_prime] + self._gamma_ * self.Q[s_prime, a_prime] - self.Q[s, a]
+                td_error = self.R[s, a, s_prime] + self._gamma_ * self.Q[s_prime, a_prime] - self.Q[s, a]
                 # Q(s, a) ← Q(s, a) + α[􏰄R + γQ(s′, a′) − Q(s, a)􏰅]
-                self.Q[s, a] = self.Q[s, a] + self._alpha_ * error
+                self.Q[s, a] = self.Q[s, a] + self._alpha_ * td_error
                 s = s_prime
-                π = π_prime
                 a = a_prime
+                print("TD error: {}".format(td_error))
+            print("{}th episode ends".format(episode))
 
 
 if __name__ == "__main__":
