@@ -1,0 +1,5 @@
+# Mac system files or folders:
+.DS_Store
+
+# Pycharm system files or folders:
+venv/
