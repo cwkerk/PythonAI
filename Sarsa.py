@@ -15,6 +15,9 @@ def _take_action(π):
 
 
 def sarsa(**kwargs):
+
+    """Basic SARSA algorithm without any optimization """
+
     S = kwargs.pop("states")
     if not isinstance(S, ndarray) or not isinstance(S.size, int):
         raise Exception("states are needed to be one dimensional numpy.ndarray object")
