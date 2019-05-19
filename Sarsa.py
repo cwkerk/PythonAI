@@ -94,7 +94,12 @@ def sarsa(**kwargs):
             Q[s, a] = Q[s, a] + a * td_error
             s = s_prime
             a = a_prime
-        td_errors.append(td_error)
+
+        try:
+            td_errors.append(td_error)
+        except:
+            print("No TD error is found as the first step of this episode is terminal state.")
+
     plot.plot(td_errors)
     plot.show()
 
@@ -103,7 +108,7 @@ def sarsa(**kwargs):
 
 def semi_gradient_sarsa(**kwargs):
 
-    """Basic SARSA algorithm with semi gradient optimization using linear method"""
+    """Basic SARSA algorithm with semi gradient optimization using linear function approximation"""
 
     S = kwargs.pop("states")
     if not isinstance(S, ndarray) or not isinstance(S.size, int):
