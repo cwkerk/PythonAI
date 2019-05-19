@@ -1,77 +1,104 @@
 import matplotlib.pyplot as plot
-
-from numpy import argmax, array, ones, where, zeros
+from numpy import argmax, array, ndarray, where, zeros
 from numpy.random import choice, random
 
-
-class Environment:
-
-    def __init__(self, **kwargs):
-        self.S = kwargs.pop("states")
-        self.S_T = kwargs.pop("terminate_state")
-        self.A = kwargs.pop("actions")
-        self.NS = self.S.size
-        self.NA = self.A.size
-        self.P = random([self.NS, self.NA, self.NS])
+from EpsilonGreedy import epsilon_greedy
 
 
-class Agent:
+def _take_action(π):
+    pick = random()
+    i = -1
+    while pick >= 0:
+        i += 1
+        pick -= π[i]
+    return i
 
-    @staticmethod
-    def _take_action(π):
-        pick = random()
-        i = -1
-        while pick >= 0:
-            i += 1
-            pick -= π[i]
-        return i
 
-    _alpha_ = 0.7
-    _epsilon_ = 0.1
-    _gamma_ = 0.8
+def sarsa(**kwargs):
+    S = kwargs.pop("states")
+    if not isinstance(S, ndarray) or not isinstance(S.size, int):
+        raise Exception("states are needed to be one dimensional numpy.ndarray object")
+    NS = S.size
 
-    def __init__(self, **kwargs):
-        self.environment = kwargs.pop("environment")
-        self.Q = zeros([self.environment.NS, self.environment.NA])
-        self.R = random([self.environment.NS, self.environment.NA, self.environment.NS])
+    T = kwargs.pop("terminate_state")
+    if T not in S:
+        raise Exception("terminal state is not one of the state")
 
-    def _epsilon_greedy(self, si):
-        # ∀ a, π(a | s) = ε / |A(s)|
-        A = ones(self.environment.NA, dtype=float) * self._epsilon_ / self.environment.NA
-        best_action = argmax(self.Q[si])
-        # π(a• | s) =  1 - ε + (ε / |A(s)|)
-        A[best_action] += (1.0 - self._epsilon_)
-        return A
+    A = kwargs.pop("actions")
+    if not isinstance(A, ndarray) or not isinstance(A.size, int):
+        raise Exception("actions are needed to be one dimensional numpy.ndarray object")
+    NA = A.size
 
-    def on_policy_prediction(self, episode_size=100):
-        NS = self.environment.NS
-        S = self.environment.S
-        P = self.environment.P
-        s_t, = where(S == self.environment.S_T)
-        errors = []
-        for episode in range(episode_size):
-            s = choice(range(NS))
-            π = self._epsilon_greedy(s)
-            a = self._take_action(π)
-            while s != s_t[0]:
-                s_prime = argmax(P[s, a])
-                π_prime = self._epsilon_greedy(s_prime)
-                a_prime = self._take_action(π_prime)
-                td_error = self.R[s, a, s_prime] + self._gamma_ * self.Q[s_prime, a_prime] - self.Q[s, a]
-                # Q(s, a) ← Q(s, a) + α[􏰄R + γQ(s′, a′) − Q(s, a)􏰅]
-                self.Q[s, a] = self.Q[s, a] + self._alpha_ * td_error
-                s = s_prime
-                a = a_prime
-            errors.append(td_error)
-        plot.plot(errors)
-        plot.show()
+    try:
+        P = kwargs.pop("transitions")
+    except:
+        P = random([NS, NA, NS])
+    if not isinstance(P, ndarray) or P.shape != tuple([NS, NA, NS]):
+        raise Exception("transitions are needed to be numpy.ndarray object with shape of [NS, NA, NS]")
+
+    try:
+        R = kwargs.pop("rewards")
+    except:
+        R = random([NS, NA, NS])
+    if not isinstance(R, ndarray) or R.shape != tuple([NS, NA, NS]):
+        raise Exception("rewards are needed to be numpy.ndarray object with shape of [NS, NA, NS]")
+
+    try:
+        a = kwargs.pop("alpha")
+    except:
+        a = 0.8
+    if not isinstance(a, float):
+        raise Exception("alpha must be float typed")
+
+    try:
+        e = kwargs.pop("epsilon")
+    except:
+        e = 0.1
+    if not isinstance(e, float):
+        raise Exception("epsilon must be float typed")
+
+    try:
+        g = kwargs.pop("gamma")
+    except:
+        g = 0.8
+    if not isinstance(e, float):
+        raise Exception("gamma must be integer typed")
+
+    try:
+        episode_size = kwargs.pop("episode_size")
+    except:
+        episode_size = 100
+    if not isinstance(episode_size, int):
+        raise Exception("episode size must be int typed")
+
+    Q = zeros([NS, NA])
+    t, = where(S == T)
+
+    td_errors = []
+
+    for episode in range(episode_size):
+
+        s = choice(range(NS))
+        π = epsilon_greedy(actions=A, action_values=Q, state_index=int(s))
+        a = _take_action(π)
+
+        while s != t[0]:
+            s_prime = argmax(P[s, a])
+            π_prime = epsilon_greedy(actions=A, action_values=Q, state_index=int(s_prime))
+            a_prime = _take_action(π_prime)
+            td_error = R[s, a, s_prime] + g * Q[s_prime, a_prime] - Q[s, a]
+            # Q(s, a) ← Q(s, a) + α[􏰄R + γQ(s′, a′) − Q(s, a)􏰅]
+            Q[s, a] = Q[s, a] + a * td_error
+            s = s_prime
+            a = a_prime
+        td_errors.append(td_error)
+    plot.plot(td_errors)
+    plot.show()
+
+    return Q
 
 
 if __name__ == "__main__":
     S = array(["s1", "s2", "s3", "s4", "s5"])
     A = array(["a1", "a2", "a3", "a4"])
-    environment = Environment(states=S, actions=A, terminate_state="s5")
-    agent = Agent(environment=environment)
-    print("Initial Q: {}".format(agent.Q))
-    agent.on_policy_prediction()
-    print("Final Q: {}".format(agent.Q))
+    sarsa(states=S, actions=A, terminate_state="s5")
