@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plot
+
 from numpy import argmax, array, dot, ones, where
 from numpy.random import choice, random
 
@@ -46,6 +48,7 @@ class Agent:
         S = self.environment.S
         P = self.environment.P
         s_t, = where(S == self.environment.S_T)
+        errors = []
         for episode in range(episode_size):
             s = choice(range(NS))
             π = self._epsilon_greedy(s)
@@ -54,11 +57,14 @@ class Agent:
                 s_prime = argmax(P[s, a])
                 π_prime = self._epsilon_greedy(s_prime)
                 a_prime = self._take_action(π_prime)
-                error = self.R[s, a, s_prime] + self._gamma_ * dot(π_prime, self.Q[s_prime]) - self.Q[s, a]
+                td_error = self.R[s, a, s_prime] + self._gamma_ * dot(π_prime, self.Q[s_prime]) - self.Q[s, a]
                 # Q(s, a) ← Q(s, a) + α[􏰄R + γ ∑s′∈S ∑a′∈A π(a′|s′) Q(s′, a′) − Q(s, a)􏰅]
-                self.Q[s, a] = self.Q[s, a] + self._alpha_ * error
+                self.Q[s, a] = self.Q[s, a] + self._alpha_ * td_error
                 s = s_prime
                 a = a_prime
+            errors.append(td_error)
+        plot.plot(errors)
+        plot.show()
 
 
 if __name__ == "__main__":
@@ -67,5 +73,5 @@ if __name__ == "__main__":
     environment = Environment(states=S, actions=A, terminate_state="s5")
     agent = Agent(environment=environment)
     print("Initial Q: {}".format(agent.Q))
-    agent.on_policy_prediction()
+    agent.on_policy_prediction(episode_size=100)
     print("Final Q: {}".format(agent.Q))

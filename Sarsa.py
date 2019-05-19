@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plot
+
 from numpy import argmax, array, ones, where, zeros
 from numpy.random import choice, random
 
@@ -46,8 +48,8 @@ class Agent:
         S = self.environment.S
         P = self.environment.P
         s_t, = where(S == self.environment.S_T)
+        errors = []
         for episode in range(episode_size):
-            print("{}th episode starts".format(episode))
             s = choice(range(NS))
             π = self._epsilon_greedy(s)
             a = self._take_action(π)
@@ -60,8 +62,9 @@ class Agent:
                 self.Q[s, a] = self.Q[s, a] + self._alpha_ * td_error
                 s = s_prime
                 a = a_prime
-                print("TD error: {}".format(td_error))
-            print("{}th episode ends".format(episode))
+            errors.append(td_error)
+        plot.plot(errors)
+        plot.show()
 
 
 if __name__ == "__main__":
