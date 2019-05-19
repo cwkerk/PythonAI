@@ -22,7 +22,7 @@ def epsilon_greedy(**kwargs):
         raise Exception("epsilon must be float typed")
 
     i = kwargs.pop("state_index")
-    if not isinstance(i, int) or i >= len(Q):
+    if not isinstance(i, int) or i >= Q.shape[0]:
         raise Exception("state_index is needed to be the index of interested state in state space")
 
     # ∀ a, π(a | s) = ε / |A(s)|
