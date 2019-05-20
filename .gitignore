@@ -4,4 +4,5 @@
 # Pycharm system files or folders:
 .idea/
 __pycache__/
+bin/
 venv/
