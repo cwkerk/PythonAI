@@ -65,7 +65,7 @@ def sarsa(**kwargs):
         γ = kwargs.pop("gamma")
     except:
         γ = 0.8
-    if not isinstance(e, float):
+    if not isinstance(γ, float):
         raise Exception("gamma must be integer typed")
 
     try:
@@ -157,7 +157,7 @@ def semi_gradient_sarsa(**kwargs):
         γ = kwargs.pop("gamma")
     except:
         γ = 0.8
-    if not isinstance(e, float):
+    if not isinstance(γ, float):
         raise Exception("gamma must be integer typed")
 
     try:
