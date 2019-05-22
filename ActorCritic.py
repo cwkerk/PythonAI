@@ -100,12 +100,11 @@ def one_step_actor_critic(**kwargs):
             r_prime = R[s, a, s_prime]
             td_error = r_prime + γ * dot(V[s_prime], W) - dot(V[s], W)
             # W ← W + α * θw * [􏰄R + γV(s′) − V(s)􏰅] * ∇V(s)
-            W = W + aw * Iw * td_error * sum(V[s])
-            θ = θ + aθ * Iθ * td_error * (sum(π[s, a]) / dot(π[s, a], θ))
+            W = W + aw * Iw * td_error * V[s]
+            θ = θ + aθ * Iθ * td_error * (π[s, a] / dot(π[s, a], θ))
             Iw = γ * Iw
             Iθ = γ * Iθ
             s = s_prime
-            print("{}th episode at s{} state after taken a{} action".format(episode, s + 1, a + 1))
 
         try:
             td_errors.append(td_error)
@@ -119,5 +118,5 @@ def one_step_actor_critic(**kwargs):
 if __name__ == "__main__":
     S = array(["s1", "s2", "s3", "s4", "s5"])
     A = array(["a1", "a2", "a3", "a4"])
-    one_step_actor_critic(states=S, actions=A, terminate_state="s2", policy_parameter_space=1, weight_size=3)
+    one_step_actor_critic(states=S, actions=A, terminate_state="s2", policy_parameter_space=4, weight_size=3)
 
