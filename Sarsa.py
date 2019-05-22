@@ -268,7 +268,7 @@ def semi_gradient_sarsa(**kwargs):
         while s != t[0]:
             s_prime = argmax(P[s, a])
             r_prime = R[s, a, s_prime]
-            q_gradient = sum(Q[s, a])
+            q_gradient = Q[s, a]
 
             if s_prime == t[0]:
                 W = W + a * (r_prime - q) * q_gradient
@@ -391,7 +391,7 @@ def sarsa_lambda(**kwargs):
 if __name__ == "__main__":
     S = array(["s1", "s2", "s3", "s4", "s5"])
     A = array(["a1", "a2", "a3", "a4"])
-    sarsa(states=S, actions=A, terminate_state="s5")
-    expected_sarsa(states=S, actions=A, terminate_state="s5")
+    # sarsa(states=S, actions=A, terminate_state="s5")
+    # expected_sarsa(states=S, actions=A, terminate_state="s5")
     semi_gradient_sarsa(states=S, actions=A, terminate_state="s5", weight_size=3)
-    sarsa_lambda(states=S, actions=A, terminate_state="s5")
+    # sarsa_lambda(states=S, actions=A, terminate_state="s5")
