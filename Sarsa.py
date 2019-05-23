@@ -220,7 +220,7 @@ def semi_gradient_sarsa(**kwargs):
     NW = kwargs.pop("weight_size")
     if not isinstance(NW, int):
         raise Exception("weight size should be int typed")
-    W = random(NW)
+    W = zeros(NW)
 
     try:
         P = kwargs.pop("transitions")
@@ -264,7 +264,7 @@ def semi_gradient_sarsa(**kwargs):
     if not isinstance(episode_size, int):
         raise Exception("episode size must be int typed")
 
-    Q = zeros([NS, NA, NW])
+    Q = random([NS, NA, NW])
 
     td_errors = []
 
