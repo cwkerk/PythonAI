@@ -94,7 +94,12 @@ def sarsa(**kwargs):
             Q[s, a] = Q[s, a] + a * td_error
             s = s_prime
             a = a_prime
-        td_errors.append(td_error)
+
+        try:
+            td_errors.append(td_error)
+        except:
+            print("No TD error is found as the first step of this episode is terminal state.")
+
     plot.plot(td_errors)
     plot.show()
 
@@ -181,7 +186,12 @@ def expected_sarsa(**kwargs):
             Q[s, a] = Q[s, a] + a * td_error
             s = s_prime
             a = a_prime
-        td_errors.append(td_error)
+
+        try:
+            td_errors.append(td_error)
+        except:
+            print("No TD error is found as the first step of this episode is terminal state.")
+
     plot.plot(td_errors)
     plot.show()
 
@@ -288,6 +298,7 @@ def semi_gradient_sarsa(**kwargs):
             td_errors.append(td_error)
         except:
             print("No TD error is found as the first step of this episode is terminal state.")
+
     plot.plot(td_errors)
     plot.show()
 
@@ -382,6 +393,7 @@ def sarsa_lambda(**kwargs):
             td_errors.append(td_error)
         except:
             print("No TD error is found as the first step of this episode is terminal state.")
+
     plot.plot(td_errors)
     plot.show()
 
@@ -391,7 +403,7 @@ def sarsa_lambda(**kwargs):
 if __name__ == "__main__":
     S = array(["s1", "s2", "s3", "s4", "s5"])
     A = array(["a1", "a2", "a3", "a4"])
-    # sarsa(states=S, actions=A, terminate_state="s5")
-    # expected_sarsa(states=S, actions=A, terminate_state="s5")
+    sarsa(states=S, actions=A, terminate_state="s5")
+    expected_sarsa(states=S, actions=A, terminate_state="s5")
     semi_gradient_sarsa(states=S, actions=A, terminate_state="s5", weight_size=3)
-    # sarsa_lambda(states=S, actions=A, terminate_state="s5")
+    sarsa_lambda(states=S, actions=A, terminate_state="s5")
