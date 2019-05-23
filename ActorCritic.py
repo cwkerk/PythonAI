@@ -91,19 +91,15 @@ def one_step_actor_critic(**kwargs):
     for episode in range(episode_size):
 
         s = choice(range(NS))
-        Iw = ones(NW)
-        Iθ = ones(Nθ)
 
         while s != t[0]:
             a = _take_action([max([dot(a, θ), 1]) for a in π[s]])
             s_prime = argmax(P[s, a])
             r_prime = R[s, a, s_prime]
             td_error = r_prime + γ * dot(V[s_prime], W) - dot(V[s], W)
-            # W ← W + α * θw * [􏰄R + γV(s′) − V(s)􏰅] * ∇V(s)
-            W = W + aw * Iw * td_error * V[s]
-            θ = θ + aθ * Iθ * td_error * (π[s, a] / dot(π[s, a], θ))
-            Iw = γ * Iw
-            Iθ = γ * Iθ
+            # W ← W + α * [􏰄R + γV(s′) − V(s)􏰅] * ∇V(s)
+            W = W + aw * td_error * V[s]
+            θ = θ + aθ * td_error * (π[s, a] / dot(π[s, a], θ))
             s = s_prime
 
         try:
