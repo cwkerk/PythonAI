@@ -319,13 +319,85 @@ def q_one_step_actor_critic(**kwargs):
 if __name__ == "__main__":
     S = array(["s1", "s2", "s3", "s4", "s5"])
     A = array(["a1", "a2", "a3", "a4"])
-    one_step_actor_critic(states=S, actions=A, terminate_state="s2", policy_parameter_space=4, weight_size=3)
+    P = array([
+        # s1
+        [
+            # a1
+            [0.0, 0.8, 0.1, 0.0, 0.1],
+            # a2
+            [0.0, 0.1, 0.7, 0.1, 0.1],
+            # a3
+            [0.0, 0.0, 0.0, 0.9, 0.1],
+            # a4
+            [0.0, 0.0, 0.1, 0.1, 0.7]
+        ],
+        # s2
+        [
+            # a1
+            [0.8, 0.0, 0.1, 0.0, 0.1],
+            # a2
+            [0.1, 0.0, 0.7, 0.1, 0.1],
+            # a3
+            [0.0, 0.0, 0.0, 0.9, 0.1],
+            # a4
+            [0.0, 0.0, 0.1, 0.1, 0.7]
+        ],
+        # s3
+        [
+            # a1
+            [0.8, 0.1, 0.0, 0.0, 0.1],
+            # a2
+            [0.1, 0.7, 0.0, 0.1, 0.1],
+            # a3
+            [0.0, 0.0, 0.0, 0.9, 0.1],
+            # a4
+            [0.1, 0.0, 0.0, 0.1, 0.7]
+        ],
+        # s4
+        [
+            # a1
+            [0.8, 0.1, 0.0, 0.0, 0.1],
+            # a2
+            [0.1, 0.7, 0.1, 0.0, 0.1],
+            # a3
+            [0.0, 0.0, 0.9, 0.0, 0.1],
+            # a4
+            [0.1, 0.0, 0.1, 0.0, 0.7]
+        ],
+        # s5
+        [
+            # a1
+            [0.8, 0.1, 0.0, 0.1, 0.0],
+            # a2
+            [0.1, 0.7, 0.1, 0.1, 0.0],
+            # a3
+            [0.0, 0.0, 0.9, 0.1, 0.0],
+            # a4
+            [0.1, 0.0, 0.1, 0.7, 0.0]
+        ],
+    ])
+    one_step_actor_critic(
+        states=S,
+        actions=A,
+        terminate_state="s2",
+        transitions=P,
+        policy_parameter_space=4,
+        weight_size=3
+    )
     one_step_actor_critic_with_eligibility_trace(
         states=S,
         actions=A,
         terminate_state="s2",
+        transitions=P,
         policy_parameter_space=4,
         weight_size=3
     )
-    q_one_step_actor_critic(states=S, actions=A, terminate_state="s2", policy_parameter_space=4, weight_size=3)
+    q_one_step_actor_critic(
+        states=S,
+        actions=A,
+        terminate_state="s2",
+        transitions=P,
+        policy_parameter_space=4,
+        weight_size=3
+    )
 
