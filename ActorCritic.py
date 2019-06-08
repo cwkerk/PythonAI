@@ -409,6 +409,8 @@ def q_one_step_actor_critic_with_eligibility_trace(**kwargs):
             # W ← W + α * [􏰄R + γV(s′) − V(s)􏰅] * ∇V(s)
             W = W + aw * td_error * Q[s, a] * Ew[s]
             θ = θ + aθ * td_error * (π[s, a] / dot(π[s, a], θ))
+            Ew = γ * Ew
+            Eθ = γ * Eθ
             s = s_prime
 
         try:
