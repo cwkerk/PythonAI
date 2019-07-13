@@ -302,7 +302,7 @@ def q_one_step_actor_critic(**kwargs):
             a_prime = _take_action([max([dot(a, θ), 1]) for a in π[s_prime]])
             r_prime = R[s, a, s_prime]
             td_error = r_prime + γ * dot(Q[s_prime, a_prime], W) - dot(Q[s, a], W)
-            # W ← W + α * [􏰄R + γV(s′) − V(s)􏰅] * ∇V(s)
+            # W ← W + α * [􏰄R + γQ(s′) − Q(s)􏰅] * ∇Q(s)
             W = W + aw * td_error * Q[s, a]
             θ = θ + aθ * td_error * (π[s, a] / dot(π[s, a], θ))
             s = s_prime
