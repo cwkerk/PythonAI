@@ -16,7 +16,7 @@ def sigmoid_derivative(a):
 
 class Network:
     max_epoch = 500000000000
-    threshold = 1e-30
+    threshold = 1e-4
 
     def __init__(self, sizes):
         # TODO: type check for `sizes`
@@ -56,7 +56,6 @@ class Network:
         self.weights = [w - learning_rate * nw for w, nw in zip(self.weights, nabla_weights)]
 
     def feed_forward(self, input):
-        # TODO: type check for `input`
         a = input
         outputs = []
         activations = [a]
@@ -67,32 +66,38 @@ class Network:
             activations.append(a)
         return activations
 
-    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.85):
+    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.8):
+        # TODO: type check for all input arguments
         epoch = 0
-        errors = []
-        targets = sigmoid(training_labels)
-        inputs = sigmoid(training_inputs)
-        training_error = self.threshold
-        while epoch <= self.max_epoch and training_error >= self.threshold:
+        epoch_error = self.threshold
+        training_errors = []
+        label_size = len(training_inputs)
+        inputs = [sigmoid(x) for x in training_inputs]
+        targets = [sigmoid(y) for y in training_labels]
+        while epoch <= self.max_epoch and epoch_error >= self.threshold:
             epoch += 1
-            outputs = self.feed_forward(inputs)
-            training_error = 0.5 * sum([abs(e - o) ** 2 for e, o in zip(targets, outputs[-1])])
-            errors.append(training_error)
-            self._stochastic_gradient_descent(targets, outputs, learning_rate)
-        return errors
+            outputs = []
+            for i in range(label_size):
+                outputs.append(self.feed_forward(inputs[i]))
+                training_error = 0.5 * sum([abs(e - o) ** 2 for e, o in zip(targets[i], outputs[i][-1])])
+                self._stochastic_gradient_descent(targets[i], outputs[i], learning_rate)
+                epoch_error += training_error
+            training_errors.append(epoch_error)
+        return training_errors
 
 
 # As an example:
 if __name__ == "__main__":
     figure, axis = pyplot.subplots()
-    # train
-    input = array([0.5, 0.8])
-    output = array([0.025, 0.064])
-    net = Network([2, 3, 4, 5, 6, 5, 4, 3, 2])
-    errors = net.train_with_stochastic_gradient_descent(output, input)
+    sample_inputs = array([[0.5], [0.8]])
+    sample_labels = array([[0.025], [0.064]])
+    net = Network([1, 3, 4, 5, 6, 5, 4, 3, 1])
+    errors = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs)
     axis.plot(errors, color="green")
-    errors_2 = net.train_with_stochastic_gradient_descent(output, input, learning_rate=1.0)
+    errors_2 = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs, learning_rate=0.6)
     axis.plot(errors_2, color="blue")
-    errors_3 = net.train_with_stochastic_gradient_descent(output, input, learning_rate=1.15)
+    errors_3 = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs, learning_rate=0.4)
+    axis.plot(errors_3, color="red")
     print("Final Error: {}".format(errors[-1]))
+    print("Predict output given input 0.6: {}".format(net.feed_forward([0.6])[-1]))
     pyplot.show()
