@@ -15,8 +15,8 @@ def sigmoid_derivative(a):
 
 
 class Network:
-    max_epoch = 500000000000
-    threshold = 1e-4
+    max_epoch = 5e10
+    threshold = 1e-10
 
     def __init__(self, sizes):
         # TODO: type check for `sizes`
@@ -24,12 +24,14 @@ class Network:
         # create biases for hidden and output nodes
         self.biases = [random.randn(size) for size in sizes[1:]]
         self.weights = [random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+        self.nabla_biases = [zeros(bias.shape) for bias in self.biases]
+        self.nabla_weights = [zeros(weight.shape) for weight in self.weights]
 
     # both expected_outputs is data list of size same as output layer
-    def _back_propagation(self, targets, outputs):
+    def _back_propagation(self, target, outputs):
         nabla_biases = [zeros(bias.shape) for bias in self.biases]
         nabla_weights = [zeros(weight.shape) for weight in self.weights]
-        delta = _cost_derivative(outputs[-1], targets) * sigmoid_derivative(outputs[-1])
+        delta = _cost_derivative(outputs[-1], target) * sigmoid_derivative(outputs[-1])
         # cost to correct output bias,
         # ∂(error)/∂(output_bias) = ∂(error)/∂(output)
         nabla_biases[-1] = delta
@@ -50,10 +52,12 @@ class Network:
             nabla_weights[-i] = outer(delta, outputs[-i - 1])
         return nabla_biases, nabla_weights
 
-    def _stochastic_gradient_descent(self, targets, outputs, learning_rate):
+    def _stochastic_gradient_descent(self, targets, outputs, learning_rate, momentum):
         nabla_biases, nabla_weights = self._back_propagation(targets, outputs)
-        self.biases = [b - learning_rate * nb for b, nb in zip(self.biases, nabla_biases)]
-        self.weights = [w - learning_rate * nw for w, nw in zip(self.weights, nabla_weights)]
+        self.nabla_biases = [momentum * o - learning_rate * n for o, n in zip(self.nabla_biases, nabla_biases)]
+        self.nabla_weights = [momentum * o - learning_rate * n for o, n in zip(self.nabla_weights, nabla_weights)]
+        self.biases = [b + nb for b, nb in zip(self.biases, self.nabla_biases)]
+        self.weights = [w + nw for w, nw in zip(self.weights, self.nabla_weights)]
 
     def feed_forward(self, input):
         a = input
@@ -66,7 +70,7 @@ class Network:
             activations.append(a)
         return activations
 
-    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.8):
+    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=1.0, momentum=0.1):
         # TODO: type check for all input arguments
         epoch = 0
         epoch_error = self.threshold
@@ -76,12 +80,13 @@ class Network:
         targets = [sigmoid(y) for y in training_labels]
         while epoch <= self.max_epoch and epoch_error >= self.threshold:
             epoch += 1
-            outputs = []
+            epoch_error = 0
             for i in range(label_size):
-                outputs.append(self.feed_forward(inputs[i]))
-                training_error = 0.5 * sum([abs(e - o) ** 2 for e, o in zip(targets[i], outputs[i][-1])])
-                self._stochastic_gradient_descent(targets[i], outputs[i], learning_rate)
+                output = self.feed_forward(inputs[i])
+                training_error = 0.5 * sum([abs(e - o) ** 2 for e, o in zip(targets[i], output[-1])])
+                self._stochastic_gradient_descent(targets[i], output, learning_rate, momentum)
                 epoch_error += training_error
+            print(epoch_error)
             training_errors.append(epoch_error)
         return training_errors
 
@@ -89,15 +94,12 @@ class Network:
 # As an example:
 if __name__ == "__main__":
     figure, axis = pyplot.subplots()
-    sample_inputs = array([[0.5], [0.8]])
-    sample_labels = array([[0.025], [0.064]])
-    net = Network([1, 3, 4, 5, 6, 5, 4, 3, 1])
+    sample_inputs = array([[0.1], [0.5], [0.8], [1.0]])
+    sample_labels = array([[0.001], [0.025], [0.064], [0.100]])
+    net = Network([1, 4, 8, 4, 1])
+    net.threshold = 1e-5
     errors = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs)
     axis.plot(errors, color="green")
-    errors_2 = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs, learning_rate=0.6)
-    axis.plot(errors_2, color="blue")
-    errors_3 = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs, learning_rate=0.4)
-    axis.plot(errors_3, color="red")
     print("Final Error: {}".format(errors[-1]))
     print("Predict output given input 0.6: {}".format(net.feed_forward([0.6])[-1]))
     pyplot.show()
