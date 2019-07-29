@@ -53,10 +53,11 @@ class Network:
 
     def _stochastic_gradient_descent(self, targets, outputs, learning_rate, momentum):
         nabla_biases, nabla_weights = self._back_propagation(targets, outputs)
-        self.nabla_biases = [momentum * o - learning_rate * n for o, n in zip(self.nabla_biases, nabla_biases)]
-        self.nabla_weights = [momentum * o - learning_rate * n for o, n in zip(self.nabla_weights, nabla_weights)]
-        self.biases = [b + nb for b, nb in zip(self.biases, self.nabla_biases)]
-        self.weights = [w + nw for w, nw in zip(self.weights, self.nabla_weights)]
+        memo_rate = 1 - learning_rate
+        self.nabla_biases = [memo_rate * o - learning_rate * n for o, n in zip(self.nabla_biases, nabla_biases)]
+        self.nabla_weights = [memo_rate * o - learning_rate * n for o, n in zip(self.nabla_weights, nabla_weights)]
+        self.biases = [b + momentum * nb for b, nb in zip(self.biases, self.nabla_biases)]
+        self.weights = [w + momentum * nw for w, nw in zip(self.weights, self.nabla_weights)]
 
     def feed_forward(self, input):
         a = input
@@ -69,7 +70,7 @@ class Network:
             activations.append(a)
         return activations
 
-    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.9, momentum=0.1):
+    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.9, momentum=1.0):
         # TODO: type check for all input arguments
         epoch = 0
         epoch_error = self.threshold
