@@ -23,10 +23,10 @@ class Network:
         # TODO: type check for `sizes`
         self.sizes = sizes
         # create biases for hidden and output nodes
-        self.biases = [random.randn(size) for size in sizes[1:]]
-        self.weights = [random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
-        self.nabla_biases = [zeros(bias.shape) for bias in self.biases]
-        self.nabla_weights = [zeros(weight.shape) for weight in self.weights]
+        self.biases = array([random.randn(size) for size in sizes[1:]])
+        self.weights = array([random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])])
+        self.nabla_biases = array([zeros(bias.shape) for bias in self.biases])
+        self.nabla_weights = array([zeros(weight.shape) for weight in self.weights])
 
     def _back_propagation(self, target, outputs):
         nabla_biases = array([zeros(bias.shape) for bias in self.biases])
@@ -53,11 +53,11 @@ class Network:
 
     def _stochastic_gradient_descent(self, targets, outputs, learning_rate, momentum):
         nabla_biases, nabla_weights = self._back_propagation(targets, outputs)
-        memo_rate = 1 - learning_rate
-        self.nabla_biases = [memo_rate * o - learning_rate * n for o, n in zip(self.nabla_biases, nabla_biases)]
-        self.nabla_weights = [memo_rate * o - learning_rate * n for o, n in zip(self.nabla_weights, nabla_weights)]
-        self.biases = [b + momentum * nb for b, nb in zip(self.biases, self.nabla_biases)]
-        self.weights = [w + momentum * nw for w, nw in zip(self.weights, self.nabla_weights)]
+        m_r = 1 - learning_rate
+        self.nabla_biases = array([m_r * o - learning_rate * n for o, n in zip(self.nabla_biases, nabla_biases)])
+        self.nabla_weights = array([m_r * o - learning_rate * n for o, n in zip(self.nabla_weights, nabla_weights)])
+        self.biases = array([b + momentum * nb for b, nb in zip(self.biases, self.nabla_biases)])
+        self.weights = array([w + momentum * nw for w, nw in zip(self.weights, self.nabla_weights)])
 
     def feed_forward(self, input):
         a = input
@@ -68,7 +68,7 @@ class Network:
             outputs.append(z)
             a = sigmoid(z)
             activations.append(a)
-        return activations
+        return array(activations)
 
     def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.9, momentum=1.0):
         # TODO: type check for all input arguments
@@ -76,8 +76,8 @@ class Network:
         epoch_error = self.threshold
         training_errors = []
         label_size = len(training_inputs)
-        inputs = [sigmoid(x) for x in training_inputs]
-        targets = [sigmoid(y) for y in training_labels]
+        inputs = array([sigmoid(x) for x in training_inputs])
+        targets = array([sigmoid(y) for y in training_labels])
         while epoch <= self.max_epoch and epoch_error >= self.threshold:
             epoch += 1
             epoch_error = 0
@@ -88,7 +88,7 @@ class Network:
                 epoch_error += training_error
             print("{}th error: {}".format(epoch, epoch_error))
             training_errors.append(epoch_error)
-        return training_errors
+        return array(training_errors)
 
 
 # As an example:
