@@ -29,8 +29,8 @@ class Network:
         self.nabla_weights = [zeros(weight.shape) for weight in self.weights]
 
     def _back_propagation(self, target, outputs):
-        nabla_biases = [zeros(bias.shape) for bias in self.biases]
-        nabla_weights = [zeros(weight.shape) for weight in self.weights]
+        nabla_biases = array([zeros(bias.shape) for bias in self.biases])
+        nabla_weights = array([zeros(weight.shape) for weight in self.weights])
         for i in range(1, len(self.sizes)):
             if i == 1:
                 delta = _cost_derivative(outputs[-1], target) * sigmoid_derivative(outputs[-1])
