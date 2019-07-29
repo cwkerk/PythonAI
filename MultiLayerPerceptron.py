@@ -27,29 +27,27 @@ class Network:
         self.nabla_biases = [zeros(bias.shape) for bias in self.biases]
         self.nabla_weights = [zeros(weight.shape) for weight in self.weights]
 
-    # both expected_outputs is data list of size same as output layer
     def _back_propagation(self, target, outputs):
         nabla_biases = [zeros(bias.shape) for bias in self.biases]
         nabla_weights = [zeros(weight.shape) for weight in self.weights]
-        delta = _cost_derivative(outputs[-1], target) * sigmoid_derivative(outputs[-1])
-        # cost to correct output bias,
-        # ∂(error)/∂(output_bias) = ∂(error)/∂(output)
-        nabla_biases[-1] = delta
-        # cost to correct output weight,
-        # ∂(error)/∆(output_weight)
-        #   = ∂(error)/∂(output) * ∂(output)/∂(weight)
-        #   = outer product of ∂(error)/∂(output) & ∂(output)/∂(weight)
-        nabla_weights[-1] = outer(delta, outputs[-2])
-        # From second last layer to first layer
-        for i in range(2, len(self.sizes)):
-            # compute delta,
-            # delta
-            #   = ∂(error)/∂(curr_output)
-            #   = ∂(error)/∂(last_output) * ∂(last_output)/∂(curr_activation) * ∂(curr_activation)/∂(curr_output)
-            #   = delta * weight * sigmoid_derivative(current_output)
-            delta = dot(delta, self.weights[-i + 1]) * sigmoid_derivative(outputs[-i])
+        for i in range(1, len(self.sizes)):
+            if i == 1:
+                delta = _cost_derivative(outputs[-1], target) * sigmoid_derivative(outputs[-1])
+            else:
+                # compute delta,
+                # delta
+                #   = ∂(error)/∂(curr_output)
+                #   = ∂(error)/∂(last_output) * ∂(last_output)/∂(curr_activation) * ∂(curr_activation)/∂(curr_output)
+                #   = delta * weight * sigmoid_derivative(current_output)
+                delta = dot(delta, self.weights[-i+1]) * sigmoid_derivative(outputs[-i])
+            # cost to correct output bias,
+            # ∂(error)/∂(output_bias) = ∂(error)/∂(output)
             nabla_biases[-i] = delta
-            nabla_weights[-i] = outer(delta, outputs[-i - 1])
+            # cost to correct output weight,
+            # ∂(error)/∆(output_weight)
+            #   = ∂(error)/∂(output) * ∂(output)/∂(weight)
+            #   = outer product of ∂(error)/∂(output) & ∂(output)/∂(weight)
+            nabla_weights[-i] = outer(delta, outputs[-i-1])
         return nabla_biases, nabla_weights
 
     def _stochastic_gradient_descent(self, targets, outputs, learning_rate, momentum):
@@ -94,8 +92,8 @@ class Network:
 # As an example:
 if __name__ == "__main__":
     figure, axis = pyplot.subplots()
-    sample_inputs = array([[0.1], [0.5], [0.8], [1.0]])
-    sample_labels = array([[0.001], [0.025], [0.064], [0.100]])
+    sample_inputs = array([[0.1], [0.2], [0.3], [0.4], [0.5], [0.7], [0.8], [0.9], [1.0]])
+    sample_labels = array([[0.001], [0.004], [0.009], [0.016], [0.025], [0.049], [0.064], [0.81], [0.100]])
     net = Network([1, 4, 8, 4, 1])
     net.threshold = 1e-5
     errors = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs)
