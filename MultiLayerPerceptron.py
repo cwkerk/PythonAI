@@ -69,7 +69,7 @@ class Network:
             activations.append(a)
         return activations
 
-    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=1.0, momentum=0.1):
+    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.9, momentum=0.1):
         # TODO: type check for all input arguments
         epoch = 0
         epoch_error = self.threshold
@@ -85,7 +85,7 @@ class Network:
                 training_error = 0.5 * sum([abs(e - o) ** 2 for e, o in zip(targets[i], output[-1])])
                 self._stochastic_gradient_descent(targets[i], output, learning_rate, momentum)
                 epoch_error += training_error
-            print(epoch_error)
+            print("{}th error: {}".format(epoch, epoch_error))
             training_errors.append(epoch_error)
         return training_errors
 
