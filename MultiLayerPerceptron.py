@@ -1,5 +1,6 @@
 from matplotlib import pyplot
 from numpy import array, dot, exp, outer, random, zeros
+import time
 
 
 def _cost_derivative(output, target):
@@ -96,8 +97,10 @@ if __name__ == "__main__":
     sample_labels = array([[0.001], [0.004], [0.009], [0.016], [0.025], [0.049], [0.064], [0.81], [0.100]])
     net = Network([1, 4, 8, 4, 1])
     net.threshold = 1e-5
+    training_start_time = time.time()
     errors = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs)
+    training_complete_time = time.time()
+    print("Time consumed for SGD training: {} secs".format(training_complete_time - training_start_time))
     axis.plot(errors, color="green")
-    print("Final Error: {}".format(errors[-1]))
-    print("Predict output given input 0.6: {}".format(net.feed_forward([0.6])[-1]))
+    print("Prediction output given input 0.6: {}".format(net.feed_forward([0.6])[-1]))
     pyplot.show()
