@@ -51,11 +51,11 @@ class Network:
             nabla_weights[-i] = outer(delta, outputs[-i-1])
         return nabla_biases, nabla_weights
 
-    def _stochastic_gradient_descent(self, targets, outputs, learning_rate, momentum):
+    def _stochastic_gradient_descent(self, targets, outputs, l_r, momentum):
         nabla_biases, nabla_weights = self._back_propagation(targets, outputs)
-        m_r = 1 - learning_rate
-        self.nabla_biases = array([m_r * o - learning_rate * n for o, n in zip(self.nabla_biases, nabla_biases)])
-        self.nabla_weights = array([m_r * o - learning_rate * n for o, n in zip(self.nabla_weights, nabla_weights)])
+        m_r = 1 - l_r
+        self.nabla_biases = array([m_r * o - l_r * n for o, n in zip(self.nabla_biases, nabla_biases)])
+        self.nabla_weights = array([m_r * o - l_r * n for o, n in zip(self.nabla_weights, nabla_weights)])
         self.biases = array([b + momentum * nb for b, nb in zip(self.biases, self.nabla_biases)])
         self.weights = array([w + momentum * nw for w, nw in zip(self.weights, self.nabla_weights)])
 
@@ -96,8 +96,8 @@ if __name__ == "__main__":
     figure, axis = pyplot.subplots()
     sample_inputs = array([[0.1], [0.2], [0.3], [0.4], [0.5], [0.7], [0.8], [0.9], [1.0]])
     sample_labels = array([[0.001], [0.004], [0.009], [0.016], [0.025], [0.049], [0.064], [0.81], [0.100]])
-    net = Network([1, 4, 8, 4, 1])
-    net.threshold = 1e-5
+    net = Network([1, 2, 3, 2, 1])
+    net.threshold = 1e-8
     training_start_time = time.time()
     errors = net.train_with_stochastic_gradient_descent(sample_labels, sample_inputs)
     training_complete_time = time.time()
