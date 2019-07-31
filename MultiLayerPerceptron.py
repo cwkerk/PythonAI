@@ -51,13 +51,10 @@ class Network:
             nabla_weights[-i] = outer(delta, outputs[-i-1])
         return nabla_biases, nabla_weights
 
-    def _stochastic_gradient_descent(self, targets, outputs, l_r, momentum):
-        nabla_biases, nabla_weights = self._back_propagation(targets, outputs)
-        m_r = 1 - l_r
-        self.nabla_biases = array([m_r * o - l_r * n for o, n in zip(self.nabla_biases, nabla_biases)])
-        self.nabla_weights = array([m_r * o - l_r * n for o, n in zip(self.nabla_weights, nabla_weights)])
-        self.biases = array([b + momentum * nb for b, nb in zip(self.biases, self.nabla_biases)])
-        self.weights = array([w + momentum * nw for w, nw in zip(self.weights, self.nabla_weights)])
+    def _stochastic_gradient_descent(self, targets, outputs, momentum):
+        self.nabla_biases, self.nabla_weights = self._back_propagation(targets, outputs)
+        self.biases = array([b - momentum * nb for b, nb in zip(self.biases, self.nabla_biases)])
+        self.weights = array([w - momentum * nw for w, nw in zip(self.weights, self.nabla_weights)])
 
     def feed_forward(self, input):
         a = input
@@ -70,7 +67,7 @@ class Network:
             activations.append(a)
         return array(activations)
 
-    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, learning_rate=0.9, momentum=1.0):
+    def train_with_stochastic_gradient_descent(self, training_labels, training_inputs, momentum=1.0):
         # TODO: type check for all input arguments
         epoch = 0
         epoch_error = self.threshold
@@ -84,7 +81,7 @@ class Network:
             for i in range(label_size):
                 output = self.feed_forward(inputs[i])
                 training_error = 0.5 * sum([abs(e - o) ** 2 for e, o in zip(targets[i], output[-1])])
-                self._stochastic_gradient_descent(targets[i], output, learning_rate, momentum)
+                self._stochastic_gradient_descent(targets[i], output, momentum)
                 epoch_error += training_error
             print("{}th error: {}".format(epoch, epoch_error))
             training_errors.append(epoch_error)
