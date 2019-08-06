@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plot
-from numpy import argmax, array, dot, ndarray, where, zeros
+from numpy import argmax, array, ndarray, where, zeros
 from numpy.random import choice, random
 
 
-from EpsilonGreedy import epsilon_greedy
+from PythonAI.EpsilonGreedy import epsilon_greedy
 
 
 def _take_action(π):

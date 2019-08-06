@@ -2,6 +2,7 @@ from matplotlib import pyplot
 import numpy
 import numpy.linalg as linarg
 import numpy.random as random
+import time
 
 
 def sigmoid(z):
@@ -40,14 +41,14 @@ class FullConnectedNetwork:
         self.nabla_biases = numpy.array([numpy.zeros(bias.shape) for bias in self.biases])
         self.nabla_weights = numpy.array([numpy.zeros(weight.shape) for weight in self.weights])
 
-    def _back_propagation(self, errors, outputs):
+    def _back_propagation(self, error, outputs):
         nabla_biases = numpy.array([numpy.zeros(bias.shape) for bias in self.biases])
         nabla_weights = numpy.array([numpy.zeros(weight.shape) for weight in self.weights])
         for i in range(1, len(self.sizes)):
             # delta = ∂(error)/∂(last_output)
             #       = ∂(error)/∂(last_activation) * ∂(last_activation)/∂(last_output)
             if i == 1:
-                delta = errors * self.activation_function_derivative(outputs[-1])
+                delta = error * self.activation_function_derivative(outputs[-1])
             else:
                 delta = numpy.dot(self.weights[-i+1].T, delta) * self.activation_function_derivative(outputs[-i])
             # ∂(error)/∂(last_bias) = ∂(error)/∂(last_output)
@@ -65,8 +66,35 @@ class FullConnectedNetwork:
             outputs.append(a)
         return numpy.array(outputs)
 
-    def full_batch_gradient_descent_training(self):
-        pass
+    def full_batch_gradient_descent_training(self, inputs, labels, *kwargs):
+        norm_inputs = inputs / linarg.norm(inputs)
+        norm_labels = inputs / linarg.norm(labels)
+        try:
+            momentum = kwargs.pop("momentum")
+        except:
+            momentum = self.momentum
+        epoch = 0
+        epoch_error = self.error_tolerance
+        epoch_errors = []
+        epoch_size = len(norm_inputs)
+        while epoch < self.max_epoch and epoch_error >= self.error_tolerance:
+            epoch += 1
+            epoch_error = 0
+            batch_errors = []
+            batch_outputs = []
+            for i in range(epoch_size):
+                output = self.feed_forward(norm_inputs[i])
+                error = output[-1] - norm_labels[i]
+                batch_errors.append(error)
+                batch_outputs.append(output)
+                epoch_error += 0.5 * sum(error * error)
+            epoch_error /= epoch_size
+            epoch_errors.append(epoch_error)
+            for i in range(epoch_size):
+                self.nabla_biases, self.nabla_weights = self._back_propagation(batch_errors[i], batch_outputs[i])
+                self.biases -= momentum * self.nabla_biases
+                self.weights -= momentum * self.nabla_weights
+        return numpy.array(epoch_errors)
 
     def mini_batch_gradient_descent_training(self):
         pass
@@ -86,14 +114,13 @@ class FullConnectedNetwork:
             epoch += 1
             epoch_error = 0
             for i in range(epoch_size):
-                outputs = self.feed_forward(norm_inputs[i])
-                errors = outputs[-1] - norm_labels[i]
-                self.nabla_biases, self.nabla_weights = self._back_propagation(errors, outputs)
+                output = self.feed_forward(norm_inputs[i])
+                error = output[-1] - norm_labels[i]
+                self.nabla_biases, self.nabla_weights = self._back_propagation(error, output)
                 self.biases -= momentum * self.nabla_biases
                 self.weights -= momentum * self.nabla_weights
-                epoch_error += 0.5 * sum(errors * errors)
+                epoch_error += 0.5 * sum(error * error)
             epoch_error /= epoch_size
-            print("{}th epoch: {}".format(epoch, epoch_error))
             epoch_errors.append(epoch_error)
         return numpy.array(epoch_errors)
 
@@ -105,6 +132,10 @@ if __name__ == "__main__":
     test_input = numpy.array([0.6])
     test_label = numpy.array([0.036])
     network = FullConnectedNetwork([1, 2, 3, 2, 1])
+    start_time = time.time()
     training_errors = network.stochastic_gradient_descent_training(sample_inputs, sample_labels)
+    finish_time = time.time()
+    period = finish_time - start_time
+    print("Time consumed for training is {} secs with training error {}".format(period, training_errors[-1]))
     axis.plot(training_errors, color="green")
     pyplot.show()
