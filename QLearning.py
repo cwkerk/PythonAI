@@ -3,7 +3,7 @@ from numpy import argmax, array, ndarray, where, zeros
 from numpy.random import choice, random
 
 
-from PythonAI.EpsilonGreedy import epsilon_greedy
+from .EpsilonGreedy import epsilon_greedy
 
 
 def _take_action(π):
